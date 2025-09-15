@@ -1,0 +1,249 @@
+{
+  "name": "Projeto_01",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1E_BILkrqwhd5yMv67pXpkIMhzskfVwQV5CN8sMpXeFA",
+          "mode": "list",
+          "cachedResultName": "Avaliação de Produto",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E_BILkrqwhd5yMv67pXpkIMhzskfVwQV5CN8sMpXeFA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 972531683,
+          "mode": "list",
+          "cachedResultName": "Respostas ao formulário 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E_BILkrqwhd5yMv67pXpkIMhzskfVwQV5CN8sMpXeFA/edit#gid=972531683"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        80
+      ],
+      "id": "d24d69d6-bc19-4874-9ce6-ada9af197e7a",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "tZ5QuzYgOVQKAuJ1",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=O cliente {{ $json[\"Nome \"] }} avaliou o produto {{ $json[\"Produto Comprado\"] }} em {{ $json[\"Data\"] }}.\nAvaliação:\n\"{{ $json[\"Avaliação do Produto\"] }}\"\nData/Hora da submissão: {{ $json[\"Carimbo de data/hora\"] }}",
+        "options": {
+          "systemMessage": "=Você é um agente de análise de sentimento.\nSua tarefa é:\n1. Classificar o sentimento do comentário como: Positivo, Negativo ou Neutro.\n2. Gerar um objeto JSON com os campos (exatamente estes nomes): Nome, Produto, Comentário, Data (YYYY-MM-DD), Sentimento.\n\nRetorne somente o JSON final, sem explicações.\n\nJSON de entrada (este é o objeto do fluxo):\n{{ JSON.stringify($json, null, 2) }}\n\nRetorne apenas o JSON com este formato EXACTO:\n\n{\n  \"Nome\": \"<valor extraído do JSON de entrada>\",\n  \"Produto\": \"<valor extraído do JSON de entrada>\",\n  \"Comentário\": \"<valor extraído do JSON de entrada>\",\n  \"Data\": \"YYYY-MM-DD\",\n  \"Sentimento\": \"<Positivo | Negativo | Neutro>\"\n}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        80
+      ],
+      "id": "3c859fd3-e233-4c47-bcc7-7f61d1fe68fe",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        272
+      ],
+      "id": "015dade9-61a8-45e4-a300-562f5209819c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "o76tW7PzDbScKleE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app2cJVYML3SrF73l",
+          "mode": "list",
+          "cachedResultName": "Analise de Sentimentos",
+          "cachedResultUrl": "https://airtable.com/app2cJVYML3SrF73l"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl13Aihqyd2YAqgi",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app2cJVYML3SrF73l/tbl13Aihqyd2YAqgi"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nome": "={{ JSON.parse($json[\"output\"]).Nome }}",
+            "Produto Comprado": "={{ JSON.parse($json[\"output\"]).Produto }}",
+            "Avaliação do Produto": "={{ JSON.parse($json[\"output\"]).Comentário }}",
+            "Sentimento": "={{ JSON.parse($json[\"output\"]).Sentimento }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Data/Hora",
+              "displayName": "Data/Hora",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Nome",
+              "displayName": "Nome",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Produto Comprado",
+              "displayName": "Produto Comprado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Avaliação do Produto",
+              "displayName": "Avaliação do Produto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sentimento",
+              "displayName": "Sentimento",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        144,
+        80
+      ],
+      "id": "0cf72bc9-0b1d-49eb-a7bc-bec588b7ef55",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "injNHbf08XGJ8XbR",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e66b713a-a570-42f6-93eb-87e832210112",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "96023c3fe0382e08929f8a839402f50ea8dd01508979564a4ce83ddb47e1acca"
+  },
+  "id": "ARataM2LiGbp4DPZ",
+  "tags": []
+}
